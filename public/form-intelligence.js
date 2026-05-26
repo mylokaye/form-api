@@ -104,52 +104,70 @@
 
   function applyTranslations(translations) {
     if (!translations) return;
-    var labelMap = {
-      firstname: 'First name',
-      lastname: 'Last name',
-      email: 'Email address',
-      phone: 'Phone number',
-      companyName: 'Company name',
-      country: 'Country',
-      inquiry: 'Inquiry'
+
+    function setLabelForField(fieldName, text) {
+      var field = document.querySelector('[name="' + fieldName + '"]');
+      if (!field) return;
+      var label = field.id ? document.querySelector('label[for="' + field.id + '"]') : null;
+      if (!label) {
+        label = field.closest('.textFormFieldBlock, .phoneFormFieldBlock, .dateTimeFormFieldBlock, .lookupFormFieldBlock, .optionSetFormFieldBlock, .passesBlock, .multiOptionSetFormFieldBlock, .twoOptionFormFieldBlock, .consentBlock')?.querySelector('label');
+      }
+      if (!label) return;
+
+      var requiredSuffix = label.querySelector('.requiredSuffix');
+      if (requiredSuffix) {
+        var textNode = Array.from(label.childNodes).find(function (node) {
+          return node.nodeType === 3 && node.textContent.trim();
+        });
+        if (textNode) {
+          textNode.textContent = text + '\u00a0';
+        } else {
+          label.insertBefore(document.createTextNode(text + '\u00a0'), requiredSuffix);
+        }
+      } else {
+        label.textContent = text;
+      }
+    }
+
+    var fieldMap = {
+      firstname: 'firstname',
+      lastname: 'lastname',
+      email: 'emailaddress1',
+      phone: 'mobilephone',
+      companyName: 'companyname',
+      role: 'nor_rolecode',
+      country: 'nor_country',
+      market: 'nor_marketsegment',
+      division: 'nor_division',
+      inquiryType: 'nor_noricansalescategory',
+      inquirySubtype: 'nor_noricansalesprocess',
+      inquiry: 'description'
     };
+
     if (translations.labels) {
       Object.keys(translations.labels).forEach(function (key) {
-        var labelText = labelMap[key];
-        if (!labelText) return;
-        var label = Array.from(document.querySelectorAll('label')).find(function (l) {
-          return l.textContent.trim().startsWith(labelText);
-        });
-        if (label) {
-          var star = label.querySelector('.requiredSuffix');
-          var text = translations.labels[key];
-          if (star) {
-            var textNode = Array.from(label.childNodes).find(function (n) {
-              return n.nodeType === 3 && n.textContent.trim().startsWith(labelText);
-            });
-            if (textNode) textNode.textContent = text + '\u00a0';
-          } else {
-            label.childNodes[0].textContent = text;
-          }
-        }
+        var fieldName = fieldMap[key];
+        if (fieldName) setLabelForField(fieldName, translations.labels[key]);
       });
     }
+
     if (translations.placeholders) {
-      var placeholderMap = {
-        firstname: 'firstname',
-        lastname: 'lastname',
-        email: 'emailaddress1',
-        phone: 'mobilephone',
-        inquiry: 'description'
-      };
       Object.keys(translations.placeholders).forEach(function (key) {
-        var fieldName = placeholderMap[key];
+        var fieldName = fieldMap[key];
         if (!fieldName) return;
         var field = document.querySelector('[name="' + fieldName + '"]');
         if (field) {
           field.setAttribute('placeholder', translations.placeholders[key]);
         }
       });
+    }
+
+    if (translations.submit) {
+      var submitButton = document.querySelector('button.submitButton[type="submit"], button.primaryButton[type="submit"], button[type="submit"]');
+      if (submitButton) {
+        var textTarget = submitButton.querySelector('span') || submitButton;
+        textTarget.textContent = translations.submit;
+      }
     }
   }
 

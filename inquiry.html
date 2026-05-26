@@ -1118,8 +1118,6 @@
          Placement: Load before the form automation script so translation
          setup can use the library when it is available.
          ============================================================ -->
-    <script src="https://cdn.jsdelivr.net/npm/i18next@23.16.8/dist/umd/i18next.min.js"></script>
-
     <!-- ============================================================
          MARKETING LEAD GENERATION FORM
          Captures: personal details, contact info, company details,
@@ -4743,13 +4741,6 @@ async function startIpScript() {
 
 async function runSafely() {
   setLogScope(LOG_SCOPE.startup);
-  try {
-    await ensureUiTranslationsInitialized();
-  } catch (error) {
-    setLogScope(LOG_SCOPE.startup);
-    logWarn('UI translation initialization failed; continuing without blocking main flow.', error?.message || error);
-  }
-
   setLogScope(LOG_SCOPE.startup);
   startIpScript().catch((error) => {
     setLogScope(LOG_SCOPE.startup);

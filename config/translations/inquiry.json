@@ -6,7 +6,12 @@
       "email": "Email address",
       "phone": "Phone number",
       "companyName": "Company name",
+      "role": "Role",
       "country": "Country",
+      "market": "Market",
+      "division": "Division",
+      "inquiryType": "Inquiry type",
+      "inquirySubtype": "Inquiry subtype",
       "inquiry": "Inquiry type"
     },
     "placeholders": {
@@ -14,6 +19,10 @@
       "lastname": "Doe",
       "email": "john@company.com",
       "phone": "Include dialing code",
+      "country": "- Search",
+      "market": "- Select",
+      "inquiryType": "- Select",
+      "inquirySubtype": "- Select",
       "inquiry": "Enter as much information as possible in order for us to route your inquiry promptly."
     },
     "submit": "Send Message"
@@ -25,7 +34,12 @@
       "email": "E-Mail-Adresse",
       "phone": "Telefonnummer",
       "companyName": "Firmenname",
+      "role": "Berufsbezeichnung",
       "country": "Land",
+      "market": "Markt",
+      "division": "Division",
+      "inquiryType": "Anfragetyp",
+      "inquirySubtype": "Anfrageuntertyp",
       "inquiry": "Anfrage"
     },
     "placeholders": {
@@ -33,6 +47,10 @@
       "lastname": "Mustermann",
       "email": "max@firma.de",
       "phone": "Mit Landesvorwahl",
+      "country": "- Suchen",
+      "market": "- Auswaehlen",
+      "inquiryType": "- Auswaehlen",
+      "inquirySubtype": "- Auswaehlen",
       "inquiry": "Beschreiben Sie Ihre Anfrage"
     },
     "submit": "Nachricht senden"
@@ -44,7 +62,12 @@
       "email": "电子邮件地址",
       "phone": "电话号码",
       "companyName": "公司名称",
+      "role": "角色",
       "country": "国家/地区",
+      "market": "市场",
+      "division": "事业部",
+      "inquiryType": "咨询类型",
+      "inquirySubtype": "咨询子类型",
       "inquiry": "咨询"
     },
     "placeholders": {
@@ -52,6 +75,10 @@
       "lastname": "姓",
       "email": "name@company.com",
       "phone": "请包含国家/地区代码",
+      "country": "- 搜索",
+      "market": "- 选择",
+      "inquiryType": "- 选择",
+      "inquirySubtype": "- 选择",
       "inquiry": "请详细描述您的咨询"
     },
     "submit": "发送消息"
