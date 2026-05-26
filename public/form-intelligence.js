@@ -114,18 +114,17 @@
       }
       if (!label) return;
 
+      var labelText = String(text || '').replace(/\s*\*+\s*$/, '');
       var requiredSuffix = label.querySelector('.requiredSuffix');
       if (requiredSuffix) {
-        var textNode = Array.from(label.childNodes).find(function (node) {
-          return node.nodeType === 3 && node.textContent.trim();
+        Array.from(label.childNodes).forEach(function (node) {
+          if (node !== requiredSuffix) {
+            label.removeChild(node);
+          }
         });
-        if (textNode) {
-          textNode.textContent = text + '\u00a0';
-        } else {
-          label.insertBefore(document.createTextNode(text + '\u00a0'), requiredSuffix);
-        }
+        label.insertBefore(document.createTextNode(labelText + '\u00a0'), requiredSuffix);
       } else {
-        label.textContent = text;
+        label.textContent = labelText;
       }
     }
 
