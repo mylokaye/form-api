@@ -15,6 +15,19 @@
       ]
     },
     {
+      "id": "division_hide_on_simpson",
+      "type": "visibility",
+      "field": "nor_division",
+      "condition": {
+        "field": "_hostname",
+        "op": "contains",
+        "value": "simpsongroup.com"
+      },
+      "actions": [
+        { "type": "set_visible", "value": false }
+      ]
+    },
+    {
       "id": "process_options_filter",
       "type": "options_filter",
       "field": "nor_noricansalesprocess",
@@ -23,6 +36,19 @@
         "Equipment": ["New Equipment", "Service", "Parts"],
         "Service": ["Repair", "Maintenance", "Consulting"]
       }
-    }
+    },
+    {
+  "id": "hide_phone_on_mylokaye",
+  "type": "visibility",
+  "field": "mobilephone",
+  "condition": {
+    "field": "_hostname",
+    "op": "contains",
+    "value": "mylokaye.info"
+  },
+  "actions": [
+    { "type": "set_visible", "value": false }
+  ]
+}
   ]
 }

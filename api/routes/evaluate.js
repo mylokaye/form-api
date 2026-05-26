@@ -6,12 +6,29 @@ const { validateEvaluateInput } = require('../middleware/validate');
 const { evaluateRules } = require('../engine/rules');
 const { evaluateEnrichments } = require('../engine/enrich');
 
+function extractHostname(url) {
+  if (!url) return '';
+  try {
+    return new URL(url).hostname.replace(/^www\./, '').toLowerCase();
+  } catch {
+    return '';
+  }
+}
+
 router.post('/form/:formId/evaluate', validateEvaluateInput, async (req, res) => {
   const start = Date.now();
   const { formId } = req.params;
   const { fields, context, version } = req.body;
 
-  const rules = evaluateRules(formId, fields);
+  const contextFields = {
+    _url: context?.url || '',
+    _hostname: extractHostname(context?.url),
+    _referrer: context?.referrer || '',
+    _language: context?.language || ''
+  };
+  const mergedFields = { ...fields, ...contextFields };
+
+  const rules = evaluateRules(formId, mergedFields);
   if (!rules) {
     return res.status(404).json({ error: `form '${formId}' not found` });
   }
