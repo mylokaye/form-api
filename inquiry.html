@@ -1681,7 +1681,6 @@
            - Derives Website from work email domains.
            - Fetches Website Info and Insights metadata.
            - Persists selected profile values in localStorage.
-           - Maintains the hidden Topic value.
          Placement: Must stay after the form markup and helper inline
          scripts so all target fields exist before bindings run.
          ============================================================ -->
@@ -1717,7 +1716,6 @@ const LOG_SCOPE = {
   ipField: 'Form Automation / IP Field Capture',
   country: 'Form Automation / Country Lookup',
   language: 'Form Automation / Language Autofill',
-  topic: 'Form Automation / Topic Field Maintenance',
   network: 'Form Automation / Network Requests',
   ipMetadata: 'Form Automation / IP Metadata',
   startup: 'Form Automation / Startup Orchestration'
@@ -1882,11 +1880,6 @@ const APP_CONFIG = {
         names: ['UTM'],
         ids: [],
         titles: ['UTM', 'UTM Params', 'UTM Parameters']
-      },
-      topic: {
-        names: ['subject'],
-        ids: ['subject-1778687944221'],
-        titles: ['Topic']
       },
       submissionUrl: {
         names: ['Submission URL'],
@@ -3727,61 +3720,9 @@ function formatIpData(data) {
 }
 
 /* =========================
-  Name: Topic Field Maintenance
-  Purpose: Confirms the hidden Topic/subject field has a submission value after
-  the hosted form has rendered.
-  Error logging: Uses Form Automation / Topic Field Maintenance for missing
-  Topic fields, empty-value writes and retry exhaustion.
-  ========================= */
-function getTopicField() {
-  setLogScope(LOG_SCOPE.topic);
-  return document.querySelector('input[name="subject"], textarea[name="subject"]')
-    || getFieldByLabelText('Topic')
-    || null;
-}
-
-function ensureTopicFieldValue() {
-  setLogScope(LOG_SCOPE.topic);
-  const topicField = getTopicField();
-  if (!topicField) {
-    logWarn('Topic field not found yet; retrying later.');
-    return false;
-  }
-
-  if (!String(topicField.value || '').trim()) {
-    topicField.value = 'Website Inquiry';
-    dispatchChangeEvents(topicField);
-    logSuccess('Topic field restored to default value.');
-    return true;
-  }
-
-  logInfo('Topic field already has a value; no update needed.');
-  return true;
-}
-
-async function bindTopicAutoFillWithRetry(options = {}) {
-  setLogScope(LOG_SCOPE.topic);
-  const retryMs = options.retryMs ?? 500;
-  const maxAttempts = options.maxAttempts ?? 10;
-
-  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    const success = ensureTopicFieldValue();
-    if (success) {
-      logSuccess('Topic field maintenance ready.', { attempt, maxAttempts });
-      return true;
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, retryMs));
-  }
-
-  logError('Unable to verify Topic field after retries.', { maxAttempts, retryMs });
-  return false;
-}
-
-/* =========================
   Name: Startup Orchestration
   Purpose: Runs the form automation once, coordinates IP, country, language,
-  tracking, profile, website metadata and Topic maintenance sections.
+  tracking, profile and website metadata sections.
   Error logging: Uses Form Automation / Startup Orchestration for lifecycle
   trigger diagnostics, unhandled failures and one-time startup status.
   ========================= */
@@ -3829,7 +3770,6 @@ async function startIpScript() {
   await bindFormProfilePersistenceWithRetry({ retryMs: 500, maxAttempts: 2 });
   await bindEmailToWebsiteSyncWithRetry({ retryMs: 500, maxAttempts: 2 });
   await bindWebsiteMetadataListenersWithRetry({ retryMs: 500, maxAttempts: 2 });
-  await bindTopicAutoFillWithRetry({ retryMs: 500, maxAttempts: 5 });
 
   setLogScope(LOG_SCOPE.startup);
   logSuccess('Stored formatted IP data for Marketing Form injection.');
