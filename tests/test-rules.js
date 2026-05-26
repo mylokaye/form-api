@@ -25,6 +25,12 @@ const TEST_CONFIG = {
       }
     },
     {
+      id: 'division_options',
+      type: 'static_options',
+      field: 'nor_division',
+      values: ['SIMPSON', 'DISA']
+    },
+    {
       id: 'division_by_hostname',
       type: 'field_value_map',
       field: 'nor_division',
@@ -64,6 +70,14 @@ describe('Rule Engine', () => {
   it('should return empty options for unmapped category', () => {
     const result = evaluateRules('test-form', { nor_noricansalescategory: 'Unknown' });
     assert.strictEqual(result.options.nor_noricansalesprocess, undefined);
+  });
+
+  it('should return static division options', () => {
+    const result = evaluateRules('test-form', {});
+    assert.deepStrictEqual(
+      result.options.nor_division.values.map(v => v.value),
+      ['SIMPSON', 'DISA']
+    );
   });
 
   it('should set field values based on hostname mappings', () => {

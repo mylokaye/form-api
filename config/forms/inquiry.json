@@ -38,6 +38,17 @@
       }
     },
     {
+      "id": "division_options",
+      "type": "static_options",
+      "field": "nor_division",
+      "values": [
+        "SIMPSON",
+        "DISA",
+        "StrikoWestofen",
+        "Wheelabrator"
+      ]
+    },
+    {
       "id": "division_by_hostname",
       "type": "field_value_map",
       "field": "nor_division",

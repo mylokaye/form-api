@@ -33,6 +33,19 @@ function evaluateCondition(condition, fields) {
   }
 }
 
+function normalizeOptions(options) {
+  return (options || []).map(option => {
+    if (typeof option === 'string') {
+      return { value: option, label: option };
+    }
+
+    return {
+      value: option.value,
+      label: option.label || option.value
+    };
+  }).filter(option => option.value);
+}
+
 function evaluateRules(formId, fields) {
   const config = loadConfig(formId);
   if (!config) {
@@ -69,10 +82,17 @@ function evaluateRules(formId, fields) {
       const mapping = rule.mapping[parentValue];
       if (mapping) {
         result.options[rule.field] = {
-          values: mapping.map(label => ({ value: label, label })),
+          values: normalizeOptions(mapping),
           filteredBy: rule.depends_on
         };
       }
+    }
+
+    if (rule.type === 'static_options') {
+      result.options[rule.field] = {
+        values: normalizeOptions(rule.values),
+        reason: rule.id
+      };
     }
 
     if (rule.type === 'field_value_map') {

@@ -57,6 +57,32 @@
     });
   }
 
+  function applyOptions(rules) {
+    if (!rules || !rules.options) return;
+    Object.keys(rules.options).forEach(function (fieldName) {
+      var optionSet = rules.options[fieldName];
+      if (!optionSet || !Array.isArray(optionSet.values)) return;
+
+      var field = document.querySelector('[name="' + fieldName + '"]');
+      if (!field) return;
+
+      var target = field;
+      var listId = field.getAttribute('list');
+      if (listId) {
+        target = document.getElementById(listId);
+      }
+      if (!target) return;
+
+      target.innerHTML = '';
+      optionSet.values.forEach(function (item) {
+        var option = document.createElement('option');
+        option.value = item.value;
+        option.textContent = item.label || item.value;
+        target.appendChild(option);
+      });
+    });
+  }
+
   function applyEnrichments(enrichments) {
     if (!enrichments) return;
     var map = {
@@ -143,6 +169,7 @@
       .then(function (r) { return r.json(); })
       .then(function (data) {
         applyVisibility(data.rules);
+        applyOptions(data.rules);
         applyFieldValues(data.rules);
         applyEnrichments(data.enrichments);
         applyTranslations(data.translations);
