@@ -1,0 +1,34 @@
+{
+  "name": "form-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "api/index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "start": "node api/index.js",
+    "dev": "node --watch api/index.js",
+    "test": "node --test tests/*.js",
+    "lint": "npx standard"
+  },
+  "engines": {
+    "node": "20.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mylokaye/form-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mylokaye/form-api/issues"
+  },
+  "homepage": "https://github.com/mylokaye/form-api#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "en": {
+    "labels": {
+      "firstname": "First name",
+      "lastname": "Last name",
+      "email": "Email address",
+      "phone": "Phone number",
+      "companyName": "Company name",
+      "country": "Country",
+      "inquiry": "Inquiry"
+    },
+    "placeholders": {
+      "firstname": "John",
+      "lastname": "Doe",
+      "email": "john@company.com",
+      "phone": "Include dialing code",
+      "inquiry": "Describe your inquiry in detail"
+    },
+    "submit": "Send Message"
+  },
+  "de": {
+    "labels": {
+      "firstname": "Vorname",
+      "lastname": "Nachname",
+      "email": "E-Mail-Adresse",
+      "phone": "Telefonnummer",
+      "companyName": "Firmenname",
+      "country": "Land",
+      "inquiry": "Anfrage"
+    },
+    "placeholders": {
+      "firstname": "Max",
+      "lastname": "Mustermann",
+      "email": "max@firma.de",
+      "phone": "Mit Landesvorwahl",
+      "inquiry": "Beschreiben Sie Ihre Anfrage"
+    },
+    "submit": "Nachricht senden"
+  }
+}
