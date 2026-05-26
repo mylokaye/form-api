@@ -46,6 +46,18 @@ const TEST_CONFIG = {
         { match: 'simpsongroup.com', value: 'SIMPSON' },
         { match: 'disagroup.com', value: 'DISA' }
       ]
+    },
+    {
+      id: 'language_by_browser',
+      type: 'field_value_map',
+      field: 'nor_primarylanguage',
+      source: '_language',
+      defaultValue: 'English',
+      mapping: [
+        { match: 'de', value: 'German' },
+        { match: 'zh', value: 'Chinese' },
+        { match: 'en', value: 'English' }
+      ]
     }
   ]
 };
@@ -103,6 +115,16 @@ describe('Rule Engine', () => {
   it('should not set field values for unmapped hostnames', () => {
     const result = evaluateRules('test-form', { _hostname: 'example.com' });
     assert.strictEqual(result.fieldValues.nor_division, undefined);
+  });
+
+  it('should set language field values from browser language', () => {
+    const result = evaluateRules('test-form', { _language: 'de-DE' });
+    assert.strictEqual(result.fieldValues.nor_primarylanguage.value, 'German');
+  });
+
+  it('should default language field values to English', () => {
+    const result = evaluateRules('test-form', { _language: '' });
+    assert.strictEqual(result.fieldValues.nor_primarylanguage.value, 'English');
   });
 
   it('should return null for unknown form', () => {

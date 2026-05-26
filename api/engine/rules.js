@@ -107,6 +107,11 @@ function evaluateRules(formId, fields) {
           value: match.value,
           reason: rule.id
         };
+      } else if (rule.defaultValue) {
+        result.fieldValues[rule.field] = {
+          value: rule.defaultValue,
+          reason: rule.id
+        };
       }
     }
   }

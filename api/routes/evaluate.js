@@ -36,7 +36,7 @@ function detectLanguageFromUrl(url) {
 }
 
 function detectTranslationLanguage(context) {
-  return detectLanguageFromUrl(context?.url) || 'en';
+  return detectLanguageFromUrl(context?.url) || (context?.language || 'en').split('-')[0].toLowerCase();
 }
 
 router.post('/form/:formId/evaluate', validateEvaluateInput, async (req, res) => {
@@ -48,7 +48,7 @@ router.post('/form/:formId/evaluate', validateEvaluateInput, async (req, res) =>
     _url: context?.url || '',
     _hostname: extractHostname(context?.url),
     _referrer: context?.referrer || '',
-    _language: context?.language || ''
+    _language: detectLanguageFromUrl(context?.url) || context?.language || ''
   };
   const mergedFields = { ...fields, ...contextFields };
 
