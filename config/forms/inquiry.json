@@ -58,7 +58,9 @@
         { "match": "disagroup.com", "value": "DISA" },
         { "match": "disa-india.com", "value": "DISA" },
         { "match": "strikowestofen.com", "value": "StrikoWestofen" },
-        { "match": "wheelabratorgroup.com", "value": "Wheelabrator" }
+        { "match": "wheelabratorgroup.com", "value": "Wheelabrator" },
+                { "match": "mylokaye.info", "value": "Wheelabrator" }
+
       ]
     },
     {
