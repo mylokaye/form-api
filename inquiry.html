@@ -1740,79 +1740,7 @@
         })();
     </script>
 
-    <!-- ============================================================
-         Name: Country / State Visibility Helper
-         Purpose: Shows the State field only when Country is United States
-         by watching nor_country and toggling the optional nor_state field
-         block when present.
-         Source: Inline helper script maintained directly in inquiry.html.
-         ============================================================ -->
-    <script>
-        (function () {
-            const logger = window.createFormLogger('Country / State Visibility Helper');
 
-            var COUNTRY_MATCH = 'UNITED STATES';
-
-            function normalize(value) {
-                return (value || '').toString().trim().toUpperCase();
-            }
-
-            function getCountryInput() {
-                return document.querySelector('input[name="nor_country"]');
-            }
-
-            function getStateBlock() {
-                var stateInput = document.querySelector('input[name="nor_state"]');
-                return stateInput ? stateInput.closest('.lookupFormFieldBlock') : null;
-            }
-
-            function updateStateVisibility() {
-                var countryInput = getCountryInput();
-                var stateBlock = getStateBlock();
-
-                if (!countryInput) {
-                    logger.warn('Country field not found.');
-                    return;
-                }
-
-                if (!stateBlock) {
-                    logger.warn('State field block not found.');
-                    return;
-                }
-
-                var countryValue = normalize(countryInput.value);
-                var shouldShow = countryValue === COUNTRY_MATCH;
-
-                stateBlock.style.display = shouldShow ? '' : 'none';
-
-                logger.info('Updated:', {
-                    countryValue: countryInput.value,
-                    normalized: countryValue,
-                    shouldShow: shouldShow
-                });
-            }
-
-            function init() {
-                var countryInput = getCountryInput();
-                if (!countryInput) {
-                    logger.warn('Country field not found on init.');
-                    return;
-                }
-
-                logger.info('Initializing listener on Country field.');
-                countryInput.addEventListener('input', updateStateVisibility);
-                countryInput.addEventListener('change', updateStateVisibility);
-
-                updateStateVisibility();
-            }
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', init);
-            } else {
-                init();
-            }
-        })();
-    </script>
 
     <!-- ============================================================
          Name: Form Automation Script
@@ -5130,5 +5058,7 @@ if (typeof module !== 'undefined' && module.exports) {
   };
 }
     </script>
+
+    <script src="form-intelligence.js"></script>
 
 </body></html>
