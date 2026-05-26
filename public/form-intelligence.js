@@ -3,6 +3,49 @@
 
   var FORM_API_BASE = (window.FORM_API_BASE || 'https://forms-api-ruby.vercel.app/api').replace(/\/+$/, '');
   var FORM_ID = 'inquiry';
+  var apiLogger = window.createFormLogger
+    ? window.createFormLogger({ source: 'API', scope: 'Evaluate' })
+    : null;
+
+  function logApi(level) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    if (apiLogger && typeof apiLogger[level] === 'function') {
+      apiLogger[level].apply(apiLogger, args);
+      return;
+    }
+
+    var method = level === 'error' ? 'error' : level === 'warn' ? 'warn' : 'log';
+    console[method].apply(console, ['[API][Evaluate]'].concat(args));
+  }
+
+  function openApiGroup(label, options) {
+    if (apiLogger && typeof apiLogger.group === 'function') {
+      return apiLogger.group(label, options || {});
+    }
+
+    var collapsed = options && Object.prototype.hasOwnProperty.call(options, 'collapsed')
+      ? options.collapsed
+      : true;
+    var fn = collapsed ? console.groupCollapsed : console.group;
+    fn('[API][Evaluate] ' + label);
+    return function () {
+      try {
+        console.groupEnd();
+      } catch (_) {}
+    };
+  }
+
+  function countKeys(obj) {
+    return obj && typeof obj === 'object' ? Object.keys(obj).length : 0;
+  }
+
+  function countOptionValues(options) {
+    if (!options || typeof options !== 'object') return 0;
+    return Object.keys(options).reduce(function (total, fieldName) {
+      var values = options[fieldName] && options[fieldName].values;
+      return total + (Array.isArray(values) ? values.length : 0);
+    }, 0);
+  }
 
   function getForm() {
     return document.querySelector('form.marketingForm');
@@ -177,28 +220,79 @@
       context: getContext(),
       version: '1.0'
     };
+    var endpoint = FORM_API_BASE + '/form/' + FORM_ID + '/evaluate';
+    var closeEvaluateGroup = openApiGroup('Started', { collapsed: true });
 
-    fetch(FORM_API_BASE + '/form/' + FORM_ID + '/evaluate', {
+    logApi('info', 'Request sent', {
+      endpoint: endpoint,
+      fields: countKeys(payload.fields),
+      language: payload.context.language,
+      url: payload.context.url
+    });
+
+    fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
-      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        logApi('info', 'Response received', {
+          status: r.status,
+          ok: r.ok
+        });
+        if (!r.ok) {
+          throw new Error('Evaluate request failed with HTTP ' + r.status);
+        }
+        return r.json();
+      })
       .then(function (data) {
         applyVisibility(data.rules);
+        logApi('success', 'Applied visibility rules', {
+          count: countKeys(data.rules && data.rules.visibility)
+        });
         applyOptions(data.rules);
+        logApi('success', 'Applied options', {
+          fields: countKeys(data.rules && data.rules.options),
+          values: countOptionValues(data.rules && data.rules.options)
+        });
         applyFieldValues(data.rules);
+        logApi('success', 'Applied field values', {
+          count: countKeys(data.rules && data.rules.fieldValues),
+          language: data.rules && data.rules.fieldValues && data.rules.fieldValues.nor_primarylanguage
+            ? data.rules.fieldValues.nor_primarylanguage.value
+            : null
+        });
         applyEnrichments(data.enrichments);
+        logApi('success', 'Applied enrichments', {
+          count: countKeys(data.enrichments)
+        });
         applyTranslations(data.translations);
+        logApi('success', 'Applied translations', {
+          labels: countKeys(data.translations && data.translations.labels),
+          placeholders: countKeys(data.translations && data.translations.placeholders),
+          submit: !!(data.translations && data.translations.submit)
+        });
+        closeEvaluateGroup();
       })
       .catch(function (err) {
-        console.warn('[form-intelligence] API call failed:', err);
+        closeEvaluateGroup();
+        var closeErrorGroup = openApiGroup('Error', { level: 'error', collapsed: false });
+        logApi('error', 'API call failed', {
+          endpoint: endpoint,
+          message: err && err.message ? err.message : String(err)
+        });
+        closeErrorGroup();
       });
   }
 
   function init() {
     var form = getForm();
-    if (!form) return;
+    if (!form) {
+      var closeWarnGroup = openApiGroup('Warn', { level: 'warn', collapsed: false });
+      logApi('warn', 'Skipped: field not found', { selector: 'form.marketingForm' });
+      closeWarnGroup();
+      return;
+    }
 
     evaluate();
 

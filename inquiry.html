@@ -1403,19 +1403,53 @@
             const LOG_STYLES = {
                 info: 'background:#16a34a;color:#fff;padding:3px 6px;border-radius:3px;font-weight:700;',
                 success: 'background:#16a34a;color:#fff;padding:3px 6px;border-radius:3px;font-weight:700;',
-                warn: 'background:#dc2626;color:#fff;padding:3px 6px;border-radius:3px;font-weight:700;',
+                warn: 'background:#f59e0b;color:#111827;padding:3px 6px;border-radius:3px;font-weight:700;',
                 error: 'background:#dc2626;color:#fff;padding:3px 6px;border-radius:3px;font-weight:700;',
-                debug: 'background:#dc2626;color:#fff;padding:3px 6px;border-radius:3px;font-weight:700;'
+                debug: 'background:#6b7280;color:#fff;padding:3px 6px;border-radius:3px;font-weight:700;'
+            };
+
+            const SOURCE_STYLES = {
+                form: 'background:#111827;color:#fff;padding:3px 6px;border-radius:3px;font-weight:700;',
+                api: 'background:#2563eb;color:#fff;padding:3px 6px;border-radius:3px;font-weight:700;'
             };
 
             window.FORM_LOG_STYLES = LOG_STYLES;
-            window.createFormLogger = function createFormLogger(scriptName) {
+            window.createFormLogger = function createFormLogger(config) {
+                const settings = typeof config === 'string'
+                    ? { source: 'FORM JS', scope: config }
+                    : (config || {});
+                const source = settings.source || 'FORM JS';
+                const sourceStyle = source === 'API' ? SOURCE_STYLES.api : SOURCE_STYLES.form;
+                const getScope = () => {
+                    const raw = typeof settings.scope === 'function' ? settings.scope() : settings.scope;
+                    return raw || 'General';
+                };
+                const badge = (level) => [`%c[${source}]%c[${getScope()}]`, sourceStyle, LOG_STYLES[level] || LOG_STYLES.info];
+                const write = (level, method, args) => {
+                    const prefix = badge(level);
+                    console[method](prefix[0], prefix[1], prefix[2], ...args);
+                };
+                const openGroup = (label, options = {}) => {
+                    const level = options.level || 'info';
+                    const collapsed = options.collapsed ?? !(level === 'warn' || level === 'error');
+                    const prefix = badge(level);
+                    const title = label ? `${prefix[0]} ${String(label)}` : prefix[0];
+                    const fn = collapsed ? console.groupCollapsed : console.group;
+                    fn(title, prefix[1], prefix[2]);
+                    return () => {
+                        try {
+                            console.groupEnd();
+                        } catch (_) {}
+                    };
+                };
+
                 return {
-                    info: (...args) => console.info(`%c[${scriptName}]`, LOG_STYLES.info, ...args),
-                    success: (...args) => console.log(`%c[${scriptName}]`, LOG_STYLES.success, ...args),
-                    warn: (...args) => console.warn(`%c[${scriptName}]`, LOG_STYLES.warn, ...args),
-                    error: (...args) => console.error(`%c[${scriptName}]`, LOG_STYLES.error, ...args),
-                    debug: (...args) => console.debug(`%c[${scriptName}]`, LOG_STYLES.debug, ...args)
+                    info: (...args) => write('info', 'info', args),
+                    success: (...args) => write('success', 'log', args),
+                    warn: (...args) => write('warn', 'warn', args),
+                    error: (...args) => write('error', 'error', args),
+                    debug: (...args) => write('debug', 'debug', args),
+                    group: openGroup
                 };
             };
         })();
@@ -1689,8 +1723,6 @@
 
 const SCRIPT_VERSION = '1.0';
 const SCRIPT_NAME = 'Form Automation Script';
-const VERSION_LOG_STYLE = 'background:#16a34a;color:#fff;padding:3px 6px;border-radius:3px;font-weight:700;';
-console.log(`%c[${SCRIPT_NAME}] Loaded version ${SCRIPT_VERSION}`, VERSION_LOG_STYLE);
 
 /* =========================
   Logging configuration
@@ -1698,9 +1730,9 @@ console.log(`%c[${SCRIPT_NAME}] Loaded version ${SCRIPT_VERSION}`, VERSION_LOG_S
 const LOG_STYLES = {
   info: 'background:#16a34a;color:#fff;padding:3px 6px;border-radius:3px;font-weight:700;',
   success: 'background:#16a34a;color:#fff;padding:3px 6px;border-radius:3px;font-weight:700;',
-  warn: 'background:#dc2626;color:#fff;padding:3px 6px;border-radius:3px;font-weight:700;',
+  warn: 'background:#f59e0b;color:#111827;padding:3px 6px;border-radius:3px;font-weight:700;',
   error: 'background:#dc2626;color:#fff;padding:3px 6px;border-radius:3px;font-weight:700;',
-  debug: 'background:#dc2626;color:#fff;padding:3px 6px;border-radius:3px;font-weight:700;'
+  debug: 'background:#6b7280;color:#fff;padding:3px 6px;border-radius:3px;font-weight:700;'
 };
 
 const ENABLE_DEBUG_LOGS = true;
@@ -1729,6 +1761,34 @@ function setLogScope(scopeName) {
 
 function getLogScope() {
   return activeLogScope || SCRIPT_NAME;
+}
+
+function getShortLogScope() {
+  return String(getLogScope())
+    .replace(/^Form Automation \/ /, '')
+    .replace(/ Field /g, ' ')
+    .replace(/ Orchestration$/, '')
+    .replace(/ Population$/, '')
+    .replace(/ Persistence$/, '')
+    .replace(/ Capture$/, '');
+}
+
+const FORM_LOGGER = window.createFormLogger
+  ? window.createFormLogger({ source: 'FORM JS', scope: getShortLogScope })
+  : null;
+
+function logGroup(label, options = {}) {
+  if (FORM_LOGGER?.group) {
+    return FORM_LOGGER.group(label, options);
+  }
+
+  return () => {};
+}
+
+if (FORM_LOGGER) {
+  FORM_LOGGER.success(`Loaded version ${SCRIPT_VERSION}`);
+} else {
+  console.log(`[FORM JS][${SCRIPT_NAME}] Loaded version ${SCRIPT_VERSION}`);
 }
 
 const APP_CONFIG = {
@@ -1932,19 +1992,39 @@ function getTimestamp() {
 }
 
 function logInfo(...args) {
-  console.log(`%c[${getLogScope()}]`, LOG_STYLES.info, ...args);
+  if (FORM_LOGGER) {
+    FORM_LOGGER.info(...args);
+    return;
+  }
+
+  console.log(`[FORM JS][${getLogScope()}]`, ...args);
 }
 
 function logSuccess(...args) {
-  console.log(`%c[${getLogScope()}]`, LOG_STYLES.success, ...args);
+  if (FORM_LOGGER) {
+    FORM_LOGGER.success(...args);
+    return;
+  }
+
+  console.log(`[FORM JS][${getLogScope()}]`, ...args);
 }
 
 function logWarn(...args) {
-  console.warn(`%c[${getLogScope()}]`, LOG_STYLES.warn, ...args);
+  if (FORM_LOGGER) {
+    FORM_LOGGER.warn(...args);
+    return;
+  }
+
+  console.warn(`[FORM JS][${getLogScope()}]`, ...args);
 }
 
 function logError(...args) {
-  console.error(`%c[${getLogScope()}]`, LOG_STYLES.error, ...args);
+  if (FORM_LOGGER) {
+    FORM_LOGGER.error(...args);
+    return;
+  }
+
+  console.error(`[FORM JS][${getLogScope()}]`, ...args);
 }
 
 function logDebug(...args) {
@@ -1952,7 +2032,12 @@ function logDebug(...args) {
     return;
   }
 
-  console.debug(`%c[${getLogScope()}]`, LOG_STYLES.debug, ...args);
+  if (FORM_LOGGER) {
+    FORM_LOGGER.debug(...args);
+    return;
+  }
+
+  console.debug(`[FORM JS][${getLogScope()}]`, ...args);
 }
 
 function updateDebugState(patch) {
@@ -2182,17 +2267,35 @@ function updateAllStatusChips() {
 
 (function () {
   // ========== Badge & Text Styles ==========
-  const LOG_PREFIX  = LOG_SCOPE.mtm;
-  const mtmLogInfo    = (...m) => console.log(`%c[${LOG_PREFIX}]`, LOG_STYLES.info, ...m);
-  const mtmLogSuccess = (...m) => console.log(`%c[${LOG_PREFIX}]`, LOG_STYLES.success, ...m);
-  const mtmLogWarn    = (...m) => console.warn(`%c[${LOG_PREFIX}]`, LOG_STYLES.warn, ...m);
-  const mtmLogError   = (...m) => console.error(`%c[${LOG_PREFIX}]`, LOG_STYLES.error, ...m);
+  const mtmLogger = window.createFormLogger
+    ? window.createFormLogger({ source: 'FORM JS', scope: 'MTM Field' })
+    : null;
+  const mtmLogInfo    = (...m) => mtmLogger ? mtmLogger.info(...m) : console.log('[FORM JS][MTM Field]', ...m);
+  const mtmLogSuccess = (...m) => mtmLogger ? mtmLogger.success(...m) : console.log('[FORM JS][MTM Field]', ...m);
+  const mtmLogWarn    = (...m) => mtmLogger ? mtmLogger.warn(...m) : console.warn('[FORM JS][MTM Field]', ...m);
+  const mtmLogError   = (...m) => mtmLogger ? mtmLogger.error(...m) : console.error('[FORM JS][MTM Field]', ...m);
+  const groupStack = [];
   const groupStart = (label, collapsed = false) => {
-    const header = `%c[${LOG_PREFIX}] ${String(label)}`;
-    const fn = collapsed ? console.groupCollapsed : console.group;
-    fn(header, LOG_STYLES.info);
+    let closeGroup;
+    if (mtmLogger?.group) {
+      closeGroup = mtmLogger.group(label, { collapsed });
+    } else {
+      const fn = collapsed ? console.groupCollapsed : console.group;
+      fn(`[FORM JS][MTM Field] ${String(label)}`);
+      closeGroup = () => { try { console.groupEnd(); } catch (_) {} };
+    }
+
+    groupStack.push(closeGroup);
   };
-  const groupEnd = () => { try { console.groupEnd(); } catch (_) {} };
+  const groupEnd = () => {
+    const closeGroup = groupStack.pop();
+    if (closeGroup) {
+      closeGroup();
+      return;
+    }
+
+    try { console.groupEnd(); } catch (_) {}
+  };
 
   setMtmStatus('Active', { source: 'mtm-script-init' });
   // ---- Config: field titles and corresponding parameter keys ----
@@ -3779,14 +3882,18 @@ async function startIpScript() {
 
 async function runSafely() {
   setLogScope(LOG_SCOPE.startup);
-  setLogScope(LOG_SCOPE.startup);
+  const closeStartupGroup = logGroup('Started', { collapsed: true });
   startIpScript().catch((error) => {
     setLogScope(LOG_SCOPE.startup);
+    const closeErrorGroup = logGroup('Error', { level: 'error', collapsed: false });
     logError('Unhandled exception in IP script', error);
     setScriptStatus(STATUS_KEYS.ip, 'Error', {
       source: 'ip-unhandled-error',
       message: error?.message || String(error)
     });
+    closeErrorGroup();
+  }).finally(() => {
+    closeStartupGroup();
   });
 }
 
