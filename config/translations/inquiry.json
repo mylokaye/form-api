@@ -7,14 +7,14 @@
       "phone": "Phone number",
       "companyName": "Company name",
       "country": "Country",
-      "inquiry": "Inquiry"
+      "inquiry": "Inquiry type"
     },
     "placeholders": {
       "firstname": "John",
       "lastname": "Doe",
       "email": "john@company.com",
       "phone": "Include dialing code",
-      "inquiry": "Describe your inquiry in detail"
+      "inquiry": "Enter as much information as possible in order for us to route your inquiry promptly."
     },
     "submit": "Send Message"
   },
@@ -36,5 +36,24 @@
       "inquiry": "Beschreiben Sie Ihre Anfrage"
     },
     "submit": "Nachricht senden"
+  },
+  "zh": {
+    "labels": {
+      "firstname": "名字",
+      "lastname": "姓氏",
+      "email": "电子邮件地址",
+      "phone": "电话号码",
+      "companyName": "公司名称",
+      "country": "国家/地区",
+      "inquiry": "咨询"
+    },
+    "placeholders": {
+      "firstname": "名",
+      "lastname": "姓",
+      "email": "name@company.com",
+      "phone": "请包含国家/地区代码",
+      "inquiry": "请详细描述您的咨询"
+    },
+    "submit": "发送消息"
   }
 }

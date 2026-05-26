@@ -15,13 +15,20 @@ const TEST_CONFIG = {
       actions: [{ type: 'set_visible', value: true }]
     },
     {
+      id: 'category_options',
+      type: 'static_options',
+      field: 'nor_noricansalescategory',
+      values: ['Aftermarket', 'OEM', 'EMP']
+    },
+    {
       id: 'process_options_filter',
       type: 'options_filter',
       field: 'nor_noricansalesprocess',
       depends_on: 'nor_noricansalescategory',
       mapping: {
-        Equipment: ['New Equipment', 'Service', 'Parts'],
-        Service: ['Repair', 'Maintenance']
+        Aftermarket: ['Monitizer', 'New Business', 'Upgrade/Retrofit', 'Spares & Service'],
+        OEM: ['Monitizer', 'New Business', 'Upgrade/Retrofit', 'Spares & Service'],
+        EMP: ['Monitizer', 'New Business', 'Upgrade/Retrofit', 'Spares & Service']
       }
     },
     {
@@ -60,10 +67,18 @@ describe('Rule Engine', () => {
   });
 
   it('should filter options based on category', () => {
-    const result = evaluateRules('test-form', { nor_noricansalescategory: 'Equipment' });
+    const result = evaluateRules('test-form', { nor_noricansalescategory: 'Aftermarket' });
     assert.deepStrictEqual(
       result.options.nor_noricansalesprocess.values.map(v => v.value),
-      ['New Equipment', 'Service', 'Parts']
+      ['Monitizer', 'New Business', 'Upgrade/Retrofit', 'Spares & Service']
+    );
+  });
+
+  it('should return static category options', () => {
+    const result = evaluateRules('test-form', {});
+    assert.deepStrictEqual(
+      result.options.nor_noricansalescategory.values.map(v => v.value),
+      ['Aftermarket', 'OEM', 'EMP']
     );
   });
 

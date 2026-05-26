@@ -28,13 +28,24 @@
       ]
     },
     {
+      "id": "category_options",
+      "type": "static_options",
+      "field": "nor_noricansalescategory",
+      "values": [
+        "Aftermarket",
+        "OEM",
+        "EMP"
+      ]
+    },
+    {
       "id": "process_options_filter",
       "type": "options_filter",
       "field": "nor_noricansalesprocess",
       "depends_on": "nor_noricansalescategory",
       "mapping": {
-        "Equipment": ["New Equipment", "Service", "Parts"],
-        "Service": ["Repair", "Maintenance", "Consulting"]
+        "Aftermarket": ["Monitizer", "New Business", "Upgrade/Retrofit", "Spares & Service"],
+        "OEM": ["Monitizer", "New Business", "Upgrade/Retrofit", "Spares & Service"],
+        "EMP": ["Monitizer", "New Business", "Upgrade/Retrofit", "Spares & Service"]
       }
     },
     {

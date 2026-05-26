@@ -15,6 +15,30 @@ function extractHostname(url) {
   }
 }
 
+function detectLanguageFromUrl(url) {
+  if (!url) return null;
+
+  try {
+    const parsed = new URL(url);
+    const pathname = parsed.pathname.replace(/\/+$/, '');
+    const lastSegment = (pathname.split('/').pop() || '').toLowerCase();
+    const suffixMatch = lastSegment.match(/(?:^|[-_])(en|de|zh)$/);
+    const lang = suffixMatch ? suffixMatch[1] : lastSegment;
+
+    if (['en', 'de', 'zh'].includes(lang)) {
+      return lang;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+function detectTranslationLanguage(context) {
+  return detectLanguageFromUrl(context?.url) || 'en';
+}
+
 router.post('/form/:formId/evaluate', validateEvaluateInput, async (req, res) => {
   const start = Date.now();
   const { formId } = req.params;
@@ -38,7 +62,7 @@ router.post('/form/:formId/evaluate', validateEvaluateInput, async (req, res) =>
   let translations = null;
   const translationPath = path.join(__dirname, '..', '..', 'config', 'translations', `${formId}.json`);
   if (fs.existsSync(translationPath)) {
-    const lang = (context?.language || 'en').split('-')[0];
+    const lang = detectTranslationLanguage(context);
     const allTranslations = JSON.parse(fs.readFileSync(translationPath, 'utf-8'));
     translations = allTranslations[lang] || allTranslations['en'] || null;
   }
