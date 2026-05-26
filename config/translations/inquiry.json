@@ -12,7 +12,7 @@
       "division": "Division",
       "inquiryType": "Inquiry type",
       "inquirySubtype": "Inquiry subtype",
-      "inquiry": "Inquiry type"
+      "inquiry": "Inquiry"
     },
     "placeholders": {
       "firstname": "John",
