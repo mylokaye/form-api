@@ -23,6 +23,16 @@ const TEST_CONFIG = {
         Equipment: ['New Equipment', 'Service', 'Parts'],
         Service: ['Repair', 'Maintenance']
       }
+    },
+    {
+      id: 'division_by_hostname',
+      type: 'field_value_map',
+      field: 'nor_division',
+      source: '_hostname',
+      mapping: [
+        { match: 'simpsongroup.com', value: 'SIMPSON' },
+        { match: 'disagroup.com', value: 'DISA' }
+      ]
     }
   ]
 };
@@ -54,6 +64,16 @@ describe('Rule Engine', () => {
   it('should return empty options for unmapped category', () => {
     const result = evaluateRules('test-form', { nor_noricansalescategory: 'Unknown' });
     assert.strictEqual(result.options.nor_noricansalesprocess, undefined);
+  });
+
+  it('should set field values based on hostname mappings', () => {
+    const result = evaluateRules('test-form', { _hostname: 'www.simpsongroup.com' });
+    assert.strictEqual(result.fieldValues.nor_division.value, 'SIMPSON');
+  });
+
+  it('should not set field values for unmapped hostnames', () => {
+    const result = evaluateRules('test-form', { _hostname: 'example.com' });
+    assert.strictEqual(result.fieldValues.nor_division, undefined);
   });
 
   it('should return null for unknown form', () => {

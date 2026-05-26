@@ -43,6 +43,20 @@
     });
   }
 
+  function applyFieldValues(rules) {
+    if (!rules || !rules.fieldValues) return;
+    Object.keys(rules.fieldValues).forEach(function (fieldName) {
+      var fieldValue = rules.fieldValues[fieldName];
+      if (!fieldValue || !fieldValue.value) return;
+      var field = document.querySelector('[name="' + fieldName + '"]');
+      if (!field) return;
+
+      field.value = fieldValue.value;
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+      field.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+  }
+
   function applyEnrichments(enrichments) {
     if (!enrichments) return;
     var map = {
@@ -126,15 +140,16 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
-    .then(function (r) { return r.json(); })
-    .then(function (data) {
-      applyVisibility(data.rules);
-      applyEnrichments(data.enrichments);
-      applyTranslations(data.translations);
-    })
-    .catch(function (err) {
-      console.warn('[form-intelligence] API call failed:', err);
-    });
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        applyVisibility(data.rules);
+        applyFieldValues(data.rules);
+        applyEnrichments(data.enrichments);
+        applyTranslations(data.translations);
+      })
+      .catch(function (err) {
+        console.warn('[form-intelligence] API call failed:', err);
+      });
   }
 
   function init() {

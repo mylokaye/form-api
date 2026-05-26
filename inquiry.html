@@ -1677,69 +1677,6 @@
         })();
     </script>
 
-    <!-- ============================================================
-         Name: Division Auto-Populate
-         Purpose: Sets the hidden Division lookup/input from the current
-         site hostname, then dispatches input/change events so the
-         marketing form records the scripted value.
-         Source: Inline helper script maintained directly in inquiry.html.
-         ============================================================ -->
-    <script>
-        (function () {
-            const logger = window.createFormLogger('Division Auto-Populate');
-
-            var divisionMap = [
-                { match: 'simpsongroup.com', division: 'SIMPSON' },
-                { match: 'disagroup.com', division: 'DISA' },
-                { match: 'disa-india.com', division: 'DISA' },
-                { match: 'strikowestofen.com', division: 'StrikoWestofen' },
-                { match: 'wheelabratorgroup.com', division: 'Wheelabrator' },
-            ];
-
-            function getHostname() {
-                return (window.location.hostname || '').toLowerCase().replace(/^www\./, '');
-            }
-
-            function setDivisionValue() {
-                var hostname = getHostname();
-                var match = divisionMap.find(function (entry) {
-                    return hostname.indexOf(entry.match) !== -1;
-                });
-
-                logger.info('Hostname detected:', hostname);
-
-                if (!match) {
-                    logger.info('No division mapping matched.');
-                    return;
-                }
-
-                var field = document.querySelector('input[name="nor_division"], #d4e0159c-3545-4a36-b374-bb7dcc297dcc');
-
-                if (!field) {
-                    logger.warn('nor_division field not found.');
-                    return;
-                }
-
-                field.value = match.division;
-                field.dispatchEvent(new Event('input', { bubbles: true }));
-                field.dispatchEvent(new Event('change', { bubbles: true }));
-
-                logger.success('Division set:', {
-                    hostname: hostname,
-                    division: match.division,
-                    fieldId: field.id,
-                    fieldName: field.name
-                });
-            }
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', setDivisionValue);
-            } else {
-                setDivisionValue();
-            }
-        })();
-    </script>
-
 
 
     <!-- ============================================================

@@ -42,7 +42,8 @@ function evaluateRules(formId, fields) {
   const result = {
     visibility: {},
     required: {},
-    options: {}
+    options: {},
+    fieldValues: {}
   };
 
   for (const rule of (config.rules || [])) {
@@ -70,6 +71,21 @@ function evaluateRules(formId, fields) {
         result.options[rule.field] = {
           values: mapping.map(label => ({ value: label, label })),
           filteredBy: rule.depends_on
+        };
+      }
+    }
+
+    if (rule.type === 'field_value_map') {
+      const sourceValue = (fields[rule.source] || '').toString().trim().toLowerCase();
+      const match = (rule.mapping || []).find(entry => {
+        const matchValue = (entry.match || '').toString().trim().toLowerCase();
+        return matchValue && sourceValue.includes(matchValue);
+      });
+
+      if (match) {
+        result.fieldValues[rule.field] = {
+          value: match.value,
+          reason: rule.id
         };
       }
     }

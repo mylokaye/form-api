@@ -38,6 +38,19 @@
       }
     },
     {
+      "id": "division_by_hostname",
+      "type": "field_value_map",
+      "field": "nor_division",
+      "source": "_hostname",
+      "mapping": [
+        { "match": "simpsongroup.com", "value": "SIMPSON" },
+        { "match": "disagroup.com", "value": "DISA" },
+        { "match": "disa-india.com", "value": "DISA" },
+        { "match": "strikowestofen.com", "value": "StrikoWestofen" },
+        { "match": "wheelabratorgroup.com", "value": "Wheelabrator" }
+      ]
+    },
+    {
   "id": "hide_phone_on_mylokaye",
   "type": "visibility",
   "field": "mobilephone",
