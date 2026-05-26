@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var FORM_API_BASE = window.FORM_API_BASE || '/api';
+  var FORM_API_BASE = (window.FORM_API_BASE || 'https://forms-api-ruby.vercel.app/api').replace(/\/+$/, '');
   var FORM_ID = 'inquiry';
 
   function getForm() {
